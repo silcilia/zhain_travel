@@ -1,0 +1,377 @@
+
+{% extends 'admin/base_site.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard Zhain{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==============================
+       DASHBOARD
+    ============================== */
+
+    .dash-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 16px;
+        margin: 20px 0 28px;
+    }
+
+    .dash-card {
+        background: var(--body-bg);
+        border: 1px solid var(--hairline-color);
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .dash-card small {
+        color: var(--body-quiet-color);
+    }
+
+    .dash-card strong {
+        display: block;
+        font-size: 28px;
+        margin-top: 8px;
+        color: var(--body-fg);
+    }
+
+    .dash-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 18px 0 28px;
+    }
+
+    .dash-actions a {
+        background: var(--button-bg);
+        color: var(--button-fg);
+        padding: 10px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .dash-actions a.secondary {
+        background: var(--darkened-bg);
+        color: var(--body-fg);
+    }
+
+    .dash-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--body-bg);
+    }
+
+    .dash-table th,
+    .dash-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--hairline-color);
+        text-align: left;
+    }
+
+    .dash-table th {
+        color: var(--body-quiet-color);
+    }
+
+    .status {
+        font-weight: 600;
+    }
+
+    /* ==============================
+       FORM DOWNLOAD REKAP EXCEL
+    ============================== */
+
+    .report-form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 14px;
+        margin: 20px 0;
+        padding: 20px;
+        background: var(--body-bg);
+        border: 1px solid var(--hairline-color);
+        border-radius: 12px;
+    }
+
+    .report-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .report-form label {
+        display: block;
+        font-weight: 600;
+        color: var(--body-fg);
+    }
+
+    /* Dropdown bulan dan input tahun */
+    .report-form select,
+    .report-form input {
+        box-sizing: border-box;
+        height: 42px;
+        min-width: 176px;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+
+        /* Warna dibuat eksplisit */
+        background-color: #ffffff !important;
+        color: #263238 !important;
+
+        font-size: 14px;
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Kondisi dropdown ketika diklik atau dipilih */
+    .report-form select:focus,
+    .report-form select:active,
+    .report-form input:focus {
+        background-color: #ffffff !important;
+        color: #263238 !important;
+        border-color: #198754;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.15);
+    }
+
+    /* Warna daftar pilihan bulan */
+    .report-form select option {
+        background-color: #ffffff !important;
+        color: #263238 !important;
+    }
+
+    .report-form button {
+        box-sizing: border-box;
+        height: 44px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 7px;
+        background: #198754;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .report-form button:hover {
+        background: #146c43;
+    }
+
+    /* Tampilan layar kecil */
+    @media (max-width: 600px) {
+        .report-form {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .report-form select,
+        .report-form input,
+        .report-form button {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<h1>Dashboard Zhain Tour and Travel</h1>
+
+<p>Ringkasan pemesanan dan pengelolaan konten website.</p>
+
+
+<!-- FORM DOWNLOAD REKAP EXCEL -->
+
+{% now "m" as current_month %}
+{% now "Y" as current_year %}
+
+<h2>Download Rekap Bulanan</h2>
+
+<p>
+    Pilih bulan dan tahun untuk mengunduh laporan booking dan pembayaran dalam format Excel.
+</p>
+
+<form method="GET"
+      action="{% url 'core:export_rekap_excel' %}"
+      class="report-form">
+
+    <div class="form-group">
+        <label for="month">Pilih Bulan</label>
+
+        <select name="month" id="month" required>
+            <option value="01" {% if current_month == "01" %}selected{% endif %}>Januari</option>
+            <option value="02" {% if current_month == "02" %}selected{% endif %}>Februari</option>
+            <option value="03" {% if current_month == "03" %}selected{% endif %}>Maret</option>
+            <option value="04" {% if current_month == "04" %}selected{% endif %}>April</option>
+            <option value="05" {% if current_month == "05" %}selected{% endif %}>Mei</option>
+            <option value="06" {% if current_month == "06" %}selected{% endif %}>Juni</option>
+            <option value="07" {% if current_month == "07" %}selected{% endif %}>Juli</option>
+            <option value="08" {% if current_month == "08" %}selected{% endif %}>Agustus</option>
+            <option value="09" {% if current_month == "09" %}selected{% endif %}>September</option>
+            <option value="10" {% if current_month == "10" %}selected{% endif %}>Oktober</option>
+            <option value="11" {% if current_month == "11" %}selected{% endif %}>November</option>
+            <option value="12" {% if current_month == "12" %}selected{% endif %}>Desember</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="year">Pilih Tahun</label>
+
+        <input type="number"
+               name="year"
+               id="year"
+               value="{{ current_year }}"
+               min="2000"
+               max="2100"
+               required>
+    </div>
+
+    <button type="submit">
+        <i class="fas fa-file-excel"></i>
+        Download Rekap Excel
+    </button>
+
+</form>
+
+
+<!-- KARTU RINGKASAN DASHBOARD -->
+
+<div class="dash-grid">
+
+    <div class="dash-card">
+        <small>Total booking</small>
+        <strong>{{ total_bookings|intcomma }}</strong>
+    </div>
+
+    <div class="dash-card">
+        <small>Menunggu konfirmasi</small>
+        <strong>{{ pending_bookings|intcomma }}</strong>
+    </div>
+
+    <div class="dash-card">
+        <small>Booking dikonfirmasi</small>
+        <strong>{{ confirmed_bookings|intcomma }}</strong>
+    </div>
+
+    <div class="dash-card">
+        <small>Pembayaran tercatat</small>
+        <strong>Rp{{ total_revenue|intcomma }}</strong>
+    </div>
+
+    <div class="dash-card">
+        <small>Paket aktif</small>
+        <strong>{{ active_packages|intcomma }}</strong>
+    </div>
+
+    <div class="dash-card">
+        <small>Brosur aktif</small>
+        <strong>{{ brochure_count|intcomma }}</strong>
+    </div>
+
+</div>
+
+
+<!-- AKSES CEPAT -->
+
+<h2>Akses cepat</h2>
+
+<div class="dash-actions">
+
+    <a href="{% url 'admin:core_bookinginquiry_changelist' %}">
+        Kelola booking
+    </a>
+
+    <a href="{% url 'admin:core_tourpackage_changelist' %}">
+        Kelola paket wisata
+    </a>
+
+    <a href="{% url 'admin:core_brochure_changelist' %}">
+        Kelola brosur
+    </a>
+
+    <a href="{% url 'admin:core_paymentrecord_changelist' %}">
+        Catatan pembayaran
+    </a>
+
+    <a class="secondary" href="{% url 'admin:core_galleryitem_changelist' %}">
+        Galeri foto
+    </a>
+
+    <a class="secondary" href="{% url 'admin:core_testimonial_changelist' %}">
+        Testimoni
+    </a>
+
+    <a class="secondary" href="/" target="_blank">
+        Lihat website ↗
+    </a>
+
+</div>
+
+
+<!-- BOOKING TERBARU -->
+
+<h2>Booking terbaru</h2>
+
+<table class="dash-table">
+
+    <thead>
+        <tr>
+            <th>Kode</th>
+            <th>Pemesan</th>
+            <th>Paket</th>
+            <th>Tanggal berangkat</th>
+            <th>Total</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for b in recent_bookings %}
+
+        <tr>
+            <td>
+                <a href="{% url 'admin:core_bookinginquiry_change' b.pk %}">
+                    {{ b.booking_code }}
+                </a>
+            </td>
+
+            <td>
+                {{ b.name }}
+                <br>
+                <small>{{ b.phone }}</small>
+            </td>
+
+            <td>
+                {{ b.package|default:'Belum ditentukan' }}
+            </td>
+
+            <td>
+                {{ b.departure_date|date:'d M Y'|default:'Belum ditentukan' }}
+            </td>
+
+            <td>
+                Rp{{ b.total_price|intcomma }}
+            </td>
+
+            <td class="status">
+                {{ b.get_booking_status_display }}
+                ·
+                {{ b.get_payment_status_display }}
+            </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="6">Belum ada booking masuk.</td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

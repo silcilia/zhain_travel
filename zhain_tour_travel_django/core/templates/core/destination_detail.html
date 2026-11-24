@@ -1,0 +1,223 @@
+
+{% extends 'core/base.html' %}
+
+{% block title %}
+{{ destination.name }} | Zhain Tour and Travel
+{% endblock %}
+
+{% block content %}
+
+<style>
+.destination-detail {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 20px;
+}
+
+.destination-detail h1 {
+    font-size: 36px;
+    color: #172b4d;
+    margin-bottom: 24px;
+}
+
+.destination-image {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 30px;
+}
+
+.destination-content {
+    margin-bottom: 28px;
+}
+
+.destination-content h2 {
+    font-size: 22px;
+    color: #172b4d;
+    margin-bottom: 12px;
+}
+
+.destination-content p {
+    color: #475569;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.destination-brochure {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    border: 1px solid #075db5;
+    border-radius: 8px;
+    color: #075db5;
+    text-decoration: none;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+.destination-brochure:hover {
+    background: #edf5ff;
+}
+
+.destination-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 35px;
+}
+
+.destination-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 22px;
+    border-radius: 8px;
+    background: #075db5;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.destination-button:hover {
+    background: #064b91;
+    transform: translateY(-2px);
+}
+
+.destination-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 13px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #334155;
+    text-decoration: none;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+.destination-back:hover {
+    background: #f1f5f9;
+}
+
+@media (max-width: 600px) {
+    .destination-detail {
+        margin: 30px auto;
+        padding: 16px;
+    }
+
+    .destination-detail h1 {
+        font-size: 28px;
+    }
+
+    .destination-image {
+        max-height: 280px;
+    }
+
+    .destination-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .destination-button,
+    .destination-back {
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+</style>
+
+
+<section class="destination-detail">
+
+    <!-- JUDUL DESTINASI -->
+    <h1>{{ destination.name }}</h1>
+
+
+    <!-- FOTO DESTINASI -->
+    {% if destination.image %}
+        <img
+            src="{{ destination.image.url }}"
+            alt="{{ destination.name }}"
+            class="destination-image"
+        >
+    {% endif %}
+
+
+    <!-- DESKRIPSI -->
+    <div class="destination-content">
+
+        <h2>Deskripsi Destinasi</h2>
+
+        {% if destination.description %}
+            <p>{{ destination.description|linebreaks }}</p>
+        {% else %}
+            <p>Informasi deskripsi destinasi belum tersedia.</p>
+        {% endif %}
+
+    </div>
+
+
+    <!-- FASILITAS -->
+    <div class="destination-content">
+
+        <h2>Fasilitas</h2>
+
+        {% if destination.facilities %}
+            <p>{{ destination.facilities|linebreaks }}</p>
+        {% else %}
+            <p>Informasi fasilitas belum tersedia.</p>
+        {% endif %}
+
+    </div>
+
+
+    <!-- BROSUR -->
+    {% if destination.brochure %}
+
+        <div class="destination-content">
+
+            <h2>Brosur</h2>
+
+            <a
+                href="{{ destination.brochure.url }}"
+                class="destination-brochure"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Lihat Brosur ↗
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- TOMBOL AKSI -->
+    <div class="destination-actions">
+
+        <!-- Menuju homepage dan otomatis memilih paket serta destinasi -->
+        <a
+            href="/?package_id={{ destination.package_id }}&destination_id={{ destination.id }}#booking"
+            class="destination-button"
+        >
+            Booking Sekarang →
+        </a>
+
+
+        <!-- Kembali ke halaman detail paket -->
+        <a
+            href="{% url 'core:package_detail' destination.package.id %}"
+            class="destination-back"
+        >
+            ← Kembali ke Paket {{ destination.package.name }}
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

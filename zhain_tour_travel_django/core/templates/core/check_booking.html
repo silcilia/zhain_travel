@@ -1,0 +1,854 @@
+
+{% extends 'core/base.html' %}
+
+{% block title %}Cek Booking | Zhain Tour and Travel{% endblock %}
+
+{% block content %}
+
+<style>
+    .check-booking-section {
+        min-height: 75vh;
+        padding: 80px 20px;
+        background: #f8fafc;
+    }
+
+    .check-booking-container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .check-booking-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .check-booking-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #172554;
+        margin-bottom: 12px;
+    }
+
+    .check-booking-header p {
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .booking-form-card,
+    .booking-result-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+        margin-bottom: 25px;
+    }
+
+    .booking-form-card h2,
+    .booking-result-card h2 {
+        font-size: 21px;
+        color: #172554;
+        margin-bottom: 22px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 13px 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+        background: #fff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #2563eb;
+    }
+
+    .form-group small {
+        display: block;
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .check-booking-button,
+    .upload-payment-button {
+        width: 100%;
+        padding: 14px;
+        background: #1d4ed8;
+        color: #ffffff;
+        border: none;
+        border-radius: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .check-booking-button:hover {
+        background: #1e40af;
+    }
+
+    .upload-payment-button {
+        background: #15803d;
+    }
+
+    .upload-payment-button:hover {
+        background: #166534;
+    }
+
+    .booking-alert {
+        padding: 14px 16px;
+        border-radius: 9px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .booking-alert.error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .booking-alert.success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .booking-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .booking-info-item {
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .booking-info-item span {
+        display: block;
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+
+    .booking-info-item strong {
+        display: block;
+        color: #1e293b;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+    }
+
+    .booking-code {
+        background: #eff6ff;
+        border: 1px dashed #60a5fa;
+        padding: 18px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 22px;
+    }
+
+    .booking-code span {
+        display: block;
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .booking-code strong {
+        font-size: 22px;
+        color: #1d4ed8;
+        letter-spacing: 1px;
+        overflow-wrap: anywhere;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .status-pending,
+    .status-unpaid {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-confirmed,
+    .status-dp {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-completed,
+    .status-paid,
+    .status-verified {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-cancelled,
+    .status-refunded,
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .payment-section {
+        margin-top: 30px;
+    }
+
+    .payment-section h3 {
+        font-size: 18px;
+        color: #172554;
+        margin-bottom: 15px;
+    }
+
+    .payment-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .payment-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .payment-table th,
+    .payment-table td {
+        padding: 13px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .payment-table th {
+        color: #475569;
+        background: #f8fafc;
+    }
+
+    .payment-proof-link {
+        color: #1d4ed8;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .payment-proof-link:hover {
+        text-decoration: underline;
+    }
+
+    .empty-payment {
+        padding: 18px;
+        background: #f8fafc;
+        border-radius: 9px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .booking-note {
+        margin-top: 22px;
+        padding: 15px;
+        border-radius: 9px;
+        background: #fffbeb;
+        color: #92400e;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .upload-payment-card {
+        margin-top: 30px;
+        padding: 24px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .upload-payment-card h3 {
+        font-size: 18px;
+        color: #172554;
+        margin-bottom: 10px;
+    }
+
+    .upload-payment-description {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 22px;
+    }
+
+    .upload-payment-info {
+        padding: 13px 15px;
+        margin-bottom: 20px;
+        background: #eff6ff;
+        border-radius: 9px;
+        color: #1e40af;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .payment-closed {
+        margin-top: 25px;
+        padding: 18px;
+        border-radius: 10px;
+        background: #dcfce7;
+        color: #166534;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+        .check-booking-section {
+            padding: 55px 15px;
+        }
+
+        .check-booking-header h1 {
+            font-size: 25px;
+        }
+
+        .booking-form-card,
+        .booking-result-card {
+            padding: 20px;
+        }
+
+        .booking-info-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .booking-code strong {
+            font-size: 18px;
+        }
+
+        .upload-payment-card {
+            padding: 18px;
+        }
+    }
+</style>
+
+<section class="check-booking-section">
+
+    <div class="check-booking-container">
+
+        <!-- HEADER -->
+        <div class="check-booking-header">
+            <h1>Cek Status Booking</h1>
+
+            <p>
+                Masukkan kode booking atau Application Token dan
+                nomor WhatsApp yang kamu gunakan saat melakukan pemesanan.
+            </p>
+        </div>
+
+        <!-- PESAN NOTIFIKASI -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="booking-alert {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- FORM CEK BOOKING -->
+        <div class="booking-form-card">
+
+            <h2>Masukkan Informasi Booking</h2>
+
+            <form method="POST" action="{% url 'core:check_booking' %}">
+
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="booking_code">
+                        Kode Booking
+                    </label>
+
+                    <input
+                        type="text"
+                        id="booking_code"
+                        name="booking_code"
+                        placeholder="Contoh: ZHN-202611-000001"
+                        value="{{ booking_code|default:'' }}"
+                    >
+
+                    <small>
+                        Isi jika kamu sudah mendapatkan kode booking dari admin.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="application_token">
+                        Application Token
+                    </label>
+
+                    <input
+                        type="text"
+                        id="application_token"
+                        name="application_token"
+                        placeholder="Masukkan Application Token"
+                        value="{{ application_token|default:'' }}"
+                    >
+
+                    <small>
+                        Gunakan token yang dikirimkan setelah berhasil melakukan pemesanan,
+                        jika kamu belum memiliki kode booking.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        Nomor WhatsApp
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Contoh: 081234567890"
+                        value="{{ phone|default:'' }}"
+                        required
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="check-booking-button"
+                >
+                    Cek Booking
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- HASIL CEK BOOKING -->
+        {% if booking %}
+
+            <div class="booking-result-card">
+
+                <h2>Detail Booking</h2>
+
+                <!-- KODE BOOKING -->
+                <div class="booking-code">
+
+                    {% if booking.booking_code %}
+                        <span>Kode Booking Kamu</span>
+                        <strong>{{ booking.booking_code }}</strong>
+                    {% else %}
+                        <span>Application Token</span>
+                        <strong>{{ booking.application_token }}</strong>
+                        <small style="display:block; margin-top:10px; color:#64748b;">
+                            Kode booking akan diterbitkan setelah pembayaran DP
+                            diverifikasi oleh admin.
+                        </small>
+                    {% endif %}
+
+                </div>
+
+                <!-- INFORMASI BOOKING -->
+                <div class="booking-info-grid">
+
+                    <div class="booking-info-item">
+                        <span>Nama Pemesan</span>
+                        <strong>{{ booking.name }}</strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Nomor WhatsApp</span>
+                        <strong>{{ booking.phone }}</strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Email</span>
+                        <strong>{{ booking.email|default:"-" }}</strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Paket Wisata</span>
+                        <strong>{{ booking.package|default:"-" }}</strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Tanggal Keberangkatan</span>
+                        <strong>
+                            {% if booking.departure_date %}
+                                {{ booking.departure_date|date:"d F Y" }}
+                            {% else %}
+                                Belum ditentukan
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Jumlah Peserta</span>
+                        <strong>{{ booking.participants }} orang</strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Status Booking</span>
+                        <strong>
+                            <span class="status-badge status-{{ booking.booking_status }}">
+                                {{ booking.get_booking_status_display }}
+                            </span>
+                        </strong>
+                    </div>
+
+                    <div class="booking-info-item">
+                        <span>Status Pembayaran</span>
+                        <strong>
+                            <span class="status-badge status-{{ booking.payment_status }}">
+                                {{ booking.get_payment_status_display }}
+                            </span>
+                        </strong>
+                    </div>
+
+                </div>
+
+                <!-- INFORMASI PEMBAYARAN -->
+                <div class="payment-section">
+
+                    <h3>Informasi Pembayaran</h3>
+
+                    <div class="booking-info-grid">
+
+                        <div class="booking-info-item">
+                            <span>Total Harga Perjalanan</span>
+                            <strong>
+                                Rp {{ booking.total_price|floatformat:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="booking-info-item">
+                            <span>Total Pembayaran Terverifikasi</span>
+                            <strong>
+                                Rp {{ booking.amount_paid|floatformat:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="booking-info-item">
+                            <span>Sisa Pembayaran</span>
+                            <strong>
+                                Rp {{ booking.remaining_payment|floatformat:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="booking-info-item">
+                            <span>Jumlah DP Per Orang</span>
+                            <strong>
+                                Rp {{ booking.price_per_person|floatformat:0 }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="booking-note">
+                        Informasi pembayaran yang ditampilkan merupakan
+                        pembayaran yang sudah diverifikasi oleh admin.
+                        Pembayaran yang masih menunggu pemeriksaan belum
+                        dihitung ke dalam total pembayaran.
+                    </div>
+
+                </div>
+
+                <!-- RIWAYAT PEMBAYARAN -->
+                <div class="payment-section">
+
+                    <h3>Riwayat Pembayaran</h3>
+
+                    {% if payments %}
+
+                        <div class="payment-table-wrapper">
+
+                            <table class="payment-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Jumlah</th>
+                                        <th>Metode</th>
+                                        <th>Status</th>
+                                        <th>Bukti</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for payment in payments %}
+                                        <tr>
+
+                                            <td>
+                                                {{ payment.paid_at|date:"d-m-Y H:i" }}
+                                            </td>
+
+                                            <td>
+                                                Rp {{ payment.amount|floatformat:0 }}
+                                            </td>
+
+                                            <td>
+                                                {{ payment.get_method_display }}
+                                            </td>
+
+                                            <td>
+                                                <span class="status-badge status-{{ payment.verification_status }}">
+                                                    {{ payment.get_verification_status_display }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                {% if payment.proof %}
+                                                    <a
+                                                        href="{{ payment.proof.url }}"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="payment-proof-link"
+                                                    >
+                                                        Lihat Bukti
+                                                    </a>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="empty-payment">
+                            Belum terdapat riwayat pembayaran untuk booking ini.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- UPLOAD BUKTI PEMBAYARAN -->
+                {% if booking.remaining_payment > 0 and booking.booking_status != 'cancelled' %}
+
+                    <div class="upload-payment-card">
+
+                        <h3>Upload Bukti Pembayaran</h3>
+
+                        <p class="upload-payment-description">
+                            Kamu dapat melakukan pembayaran secara bertahap.
+                            Silakan pilih jenis pembayaran, isi nominal,
+                            dan unggah bukti transaksi untuk diperiksa oleh admin.
+                        </p>
+
+                        <div class="upload-payment-info">
+                            <strong>Perhatian:</strong>
+                            Pembayaran yang dikirim akan berstatus
+                            <strong>Menunggu Verifikasi</strong>.
+                            Total pembayaran baru akan diperbarui setelah
+                            admin menyetujui transaksi.
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{% url 'core:upload_payment' %}"
+                            enctype="multipart/form-data"
+                        >
+
+                            {% csrf_token %}
+
+                            <!-- IDENTITAS BOOKING -->
+                            <input
+                                type="hidden"
+                                name="booking_code"
+                                value="{{ booking.booking_code|default:'' }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="application_token"
+                                value="{{ booking.application_token }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="phone"
+                                value="{{ booking.phone }}"
+                            >
+
+                            <!-- JENIS PEMBAYARAN -->
+                            <div class="form-group">
+
+                                <label for="payment_type">
+                                    Jenis Pembayaran
+                                </label>
+
+                                <select
+                                    id="payment_type"
+                                    name="payment_type"
+                                    required
+                                >
+                                    <option value="dp">
+                                        Uang Muka (DP)
+                                    </option>
+
+                                    <option value="installment">
+                                        Cicilan
+                                    </option>
+
+                                    <option value="settlement">
+                                        Pelunasan
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <!-- NOMINAL -->
+                            <div class="form-group">
+
+                                <label for="amount">
+                                    Nominal Pembayaran (Rp)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="amount"
+                                    name="amount"
+                                    min="1"
+                                    max="{{ booking.remaining_payment }}"
+                                    placeholder="Contoh: 500000"
+                                    required
+                                >
+
+                                <small>
+                                    Sisa pembayaran saat ini:
+                                    Rp {{ booking.remaining_payment|floatformat:0 }}
+                                </small>
+
+                            </div>
+
+                            <!-- METODE -->
+                            <div class="form-group">
+
+                                <label for="method">
+                                    Metode Pembayaran
+                                </label>
+
+                                <select
+                                    id="method"
+                                    name="method"
+                                    required
+                                >
+                                    <option value="transfer">
+                                        Transfer Bank
+                                    </option>
+
+                                    <option value="cash">
+                                        Tunai
+                                    </option>
+
+                                    <option value="qris">
+                                        QRIS
+                                    </option>
+
+                                    <option value="other">
+                                        Lainnya
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <!-- BUKTI PEMBAYARAN -->
+                            <div class="form-group">
+
+                                <label for="proof">
+                                    Bukti Pembayaran
+                                </label>
+
+                                <input
+                                    type="file"
+                                    id="proof"
+                                    name="proof"
+                                    accept=".jpg,.jpeg,.png,.pdf"
+                                    required
+                                >
+
+                                <small>
+                                    Format JPG, JPEG, PNG, atau PDF.
+                                    Maksimal ukuran file 5 MB.
+                                </small>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="upload-payment-button"
+                            >
+                                Kirim Bukti Pembayaran
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% elif booking.payment_status == 'paid' %}
+
+                    <div class="payment-closed">
+                        <strong>Pembayaran sudah lunas!</strong>
+                        <br>
+                        Terima kasih. Tidak ada tagihan pembayaran yang tersisa.
+                    </div>
+
+                {% elif booking.booking_status == 'cancelled' %}
+
+                    <div class="booking-note">
+                        Booking ini telah dibatalkan. Upload pembayaran
+                        tidak tersedia.
+                    </div>
+
+                {% endif %}
+
+                <!-- CATATAN PELANGGAN -->
+                {% if booking.message %}
+
+                    <div class="payment-section">
+
+                        <h3>Catatan Booking</h3>
+
+                        <div class="empty-payment">
+                            {{ booking.message }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}
